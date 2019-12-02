@@ -12,7 +12,11 @@ function main() : void {
 }
 
 function calcFuel(int $mass): int {
-    return floor($mass / 3) - 2;
+    $f = floor($mass / 3) - 2;
+    if ($f > 8) {
+        $f += calcFuel($f);
+    }
+    return $f;
 }
 
 main();
