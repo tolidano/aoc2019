@@ -39,6 +39,15 @@ function computer($ram, $start = 0) {
 }
 
 $ram = restore();
+$ramOut = $ram;
+while ($ramOut[0] != 19690720) {
+    $ramTry = $ram;
+    $ramTry[1] = rand(0, 99);
+    $ramTry[2] = rand(0, 99);
+    $ramOut = computer($ramTry);
+}
+print(100 * $ramTry[1] + $ramTry[2]);
+/*
 for ($i = 0; $i < 99; $i++) {
     for ($j = 0; $j < 99; $j++) {
         $ramTry = $ram;
@@ -51,3 +60,4 @@ for ($i = 0; $i < 99; $i++) {
         }
     }
 }
+ */
