@@ -10,9 +10,6 @@ function restore() {
     foreach ($ram as &$r) {
         $r = (int)$r;
     }
-    // fix
-    $ram[1] = 12;
-    $ram[2] = 2;
     return $ram;
 }
 
@@ -38,8 +35,19 @@ function computer($ram, $start = 0) {
         $pos += JUMP;
         $op = $ram[$pos];
     }
-    print(json_encode($ram)); 
+    return $ram;
 }
 
 $ram = restore();
-computer($ram);
+for ($i = 0; $i < 99; $i++) {
+    for ($j = 0; $j < 99; $j++) {
+        $ramTry = $ram;
+        $ramTry[1] = $i;
+        $ramTry[2] = $j;
+        $ramOut = computer($ramTry);
+        if ($ramOut[0] == 19690720) {
+            print(100 * $i + $j);
+            exit();
+        }
+    }
+}
