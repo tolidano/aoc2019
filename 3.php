@@ -8,10 +8,15 @@ $list1 = listPoints($wire1);
 $list2 = listPoints($wire2);
 
 $minDist = 1000000;
+$minSum = 1000000;
 
 foreach ($list1 as $k => $v) {
     if (isset($list2[$k])) {
-        echo "BOTH LINES CROSS AT $k\n";
+        echo "Lines Cross at $k\n";
+        $sum = $v + $list2[$k];
+        if ($sum < $minSum) {
+            $minSum = $sum;
+        }
         $parts = explode('|', $k);
         $rows = (int)$parts[1];
         $cols = (int)$parts[2];
@@ -22,12 +27,14 @@ foreach ($list1 as $k => $v) {
     }
 }
 
-echo "MIN: $minDist\n";
+echo "MIN DIST: $minDist\n";
+echo "MIN SUM: $minSum\n";
 
 function listPoints($wire) {
     $list = [];
     $row = 0;
     $col = 0;
+    $steps = 0;
     foreach ($wire as $m) {
         $dir = substr($m, 0, 1);
         $len = (int)substr($m, 1);
@@ -35,25 +42,29 @@ function listPoints($wire) {
             case 'U':
                 for ($q = 0; $q < $len; $q++) {
                     $row--;
-                    $list["RC|{$row}|{$col}"] = 1;
+                    $steps++;
+                    $list["RC|{$row}|{$col}"] = $steps;
                 }
                 break;
             case 'D':
                 for ($q = 0; $q < $len; $q++) {
                     $row++;
-                    $list["RC|{$row}|{$col}"] = 1;
+                    $steps++;
+                    $list["RC|{$row}|{$col}"] = $steps;
                 }
                 break;
             case 'L':
                 for ($q = 0; $q < $len; $q++) {
                     $col--;
-                    $list["RC|{$row}|{$col}"] = 1;
+                    $steps++;
+                    $list["RC|{$row}|{$col}"] = $steps;
                 }
                 break;
             case 'R':
                 for ($q = 0; $q < $len; $q++) {
                     $col++;
-                    $list["RC|{$row}|{$col}"] = 1;
+                    $steps++;
+                    $list["RC|{$row}|{$col}"] = $steps;
                 }
                 break;
         } 
