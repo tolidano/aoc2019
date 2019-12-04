@@ -9,13 +9,27 @@ $max = (int)$parts[1];
 $count = 0;
 for ($i = $min; $i < $max; $i++) {
     $doubles = checkDoubles((string)$i);
+    $other = checkLargeGroup((string)$i);
     $increase = checkDigits((string)$i);
-    if ($doubles && $increase) {
+    if ($doubles && $increase && $other) {
         echo "GOOD: $i\n";
         $count++;
     }
 }
 echo "$count\n";
+
+function checkLargeGroup($i) {
+    if (
+        (substr($i, 0, 1) == substr($i, 1, 1) && substr($i, 1, 1) != substr($i, 2, 1)) ||
+        (substr($i, 1, 1) == substr($i, 2, 1) && substr($i, 2, 1) != substr($i, 3, 1) && substr($i, 1, 1) != substr($i, 0, 1)) ||
+        (substr($i, 2, 1) == substr($i, 3, 1) && substr($i, 3, 1) != substr($i, 4, 1) && substr($i, 2, 1) != substr($i, 1, 1)) ||
+        (substr($i, 3, 1) == substr($i, 4, 1) && substr($i, 4, 1) != substr($i, 5, 1) && substr($i, 3, 1) != substr($i, 2, 1)) ||
+        (substr($i, 4, 1) == substr($i, 5, 1) && substr($i, 5, 1) != substr($i, 3, 1))
+    ) {
+        return true;
+    }
+    return false;
+}
 
 function checkDoubles($i) {
     if (
