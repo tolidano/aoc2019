@@ -37,13 +37,24 @@ function countLinks($node, $depth = 0) {
 
 function displayPathToRoot($node, $check = '') {
     $path = "{$node->value}->";
+    $length = 0;
     while ($node->value != 'COM') {
         $parent = $node->parent;
         $path .= "{$parent->value}->";
         if ($check && strpos($check, $parent->value)) {
-            echo "FOUND COMMON PARENT!\n$path\n";
+            $parts = explode('>', $check);
+            $you = 0;
+            while (str_replace('-', '', $parts[$you]) != $parent->value) {
+                $you++;
+            }
+            $length--;
+            echo "Common parent to you: $you\n";
+            echo "Common parent to Santa: $length\n"; 
+            $sum = $length + $you;
+            echo "$sum\n";
             return $path;
-        } 
+        }
+        $length++;
         $node = $parent;
     }
     $path = substr($path, 0, strlen($path) - 2);
@@ -51,7 +62,6 @@ function displayPathToRoot($node, $check = '') {
 }
 
 $path = displayPathToRoot($orbits[$you]);
-echo "$path\n-----------\n";
 $path2 = displayPathToRoot($orbits[$santa], $path);
 
 
