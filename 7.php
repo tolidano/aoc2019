@@ -39,6 +39,7 @@ function computer($ram, $start = 0, $inputs = []) {
     $pos = $start;
     $fop = $ram[$pos];
     $err = false;
+    $out = 0;
     while ($fop != STOP) {
         $digits = (string)$fop;
         if (strlen($digits) < 3) {
@@ -68,11 +69,17 @@ function computer($ram, $start = 0, $inputs = []) {
                 break;
             case STORE:
                 $o1l = $ram[$pos +1];
-                $ram[$o1l] = $inputs[$inputCount];
+                $in = $out;
+                if (isset($inputs[$inputCount]) && $inputs[$inputCount] != 'o') {
+                    $in = $inputs[$inputCount];
+                }
+                echo "IN: $in\n";
+                $ram[$o1l] = $in;
                 $inputCount++;
                 break;
             case OUTPUT:
-                echo "$val1\n";
+                echo "OUT: $val1\n";
+                $outputs[] = $val1;
                 $out = $val1;
                 break;
             case JIT:
@@ -105,28 +112,37 @@ function computer($ram, $start = 0, $inputs = []) {
         $pos = ($newPos > -1) ? $newPos : $pos + $jump;
         $fop = $ram[$pos];
     }
-    return $out;
+    return ['RAM' => $ram, 'OUTPUTS' => $outputs];
 }
 
 $ram = restore();
-$m = [0, 1, 2, 3, 4];
+$m = [0, 1, 2, 3, 4]; // 7
+$n = [5, 6, 7, 8, 9]; // 7.2
 $try = [];
 while (count($try) < 120) {
-    shuffle($m);
-    $str = implode('', $m);
+    shuffle($n);
+    $str = implode('-', $n);
     if (!isset($try[$str])) {
         $try[$str] = 1;
     }
 }
 $maxOut = 0;
 foreach ($try as $one => $ignore) {
-    $input = 0;
-    for ($i = 0; $i < 5; $i++) {
-        $amp = substr($one, $i, 1);
-        $input = computer($ram, 0, [(int)$amp, (int)$input]);
-    }
-    if ($input > $maxOut) {
-        $maxOut = $input;
+    echo "TRY: $one\n";
+    $input = explode('-', $one);
+    $input[9] = 'o';
+    $input[8] = $input[4];
+    $input[7] = 'o';
+    $input[6] = $input[3];
+    $input[5] = 'o';
+    $input[4] = $input[2];
+    $input[3] = 'o';
+    $input[2] = $input[1];
+    $input[1] = 0;
+    $ran = computer($ram, 0, $input);
+    $last = end($ran['OUTPUTS']);
+    if ($last > $maxOut) {
+        $maxOut = $last;
     }
 }
 echo "MAX OUTPUT: $maxOut\n";
