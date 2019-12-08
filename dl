@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+curl "https://adventofcode.com/2019/day/$1/input" -o "${1}.input.txt" \
+-XGET \
+-H 'Cookie: _ga=GA1.2.793039855.1575525271; _gid=GA1.2.338404518.1575840951; _gat=1; session=53616c7465645f5f8e7d744cce0a5c760b2c3c6b3807c3e7d6445e9b4735b59764d09f5a83a83c9893b4286af7bc0396' \
+-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+-H 'Accept-Encoding: text' \
+-H 'Host: adventofcode.com' \
+-H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Safari/605.1.15' \
+-H 'Accept-Language: en-us' \
+-H "Referer: https://adventofcode.com/2019/day/$1" \
+-H 'Connection: keep-alive'
