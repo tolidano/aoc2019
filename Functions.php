@@ -12,6 +12,10 @@ function l($str) {
     return strlen($str);
 }
 
+function t($str) {
+    return trim($str);
+}
+
 function cc($str) {
     return count_chars($str, 1);
 }
@@ -26,7 +30,7 @@ function c($arr) {
 
 function ex($del, $str) {
     return explode($del, $str);
-} 
+}
 
 function im($del, $arr) {
     return implode($del, $arr);

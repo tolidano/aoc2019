@@ -2,7 +2,9 @@
 include_once('Computer.php');
 include_once('Functions.php');
 
-$l = li('9.input.txt');
+$c = new Computer();
+$c->res('9.input.txt');
+$c->run([2]);
 
 // l = strlen
 // p = strpos
@@ -13,3 +15,4 @@ $l = li('9.input.txt');
 // c = count
 // li = lines
 // ch = chunks
+// t = trim

@@ -1,4 +1,6 @@
 <?php
+include_once('Functions.php');
+
 class Computer {
     const STP = 99;
     const ADD = 1;
@@ -9,7 +11,8 @@ class Computer {
     const JIF = 6;
     const LT = 7;
     const EQ = 8;
-    const GT = 9;
+    const REL = 9;
+    const GT = 11;
     const NEQ = 10;
 
     const SIZES = [
@@ -24,69 +27,84 @@ class Computer {
         self::EQ => 4,
         self::GT => 4,
         self::NEQ => 4,
+        self::REL => 2,
     ];
 
     public $ram = [];
     public $outputs = [];
     public $inputs = [];
     public $ip = 0;
+    public $rel = 0;
 
-    public function restore($file) {
-        $dump = trim(file_get_contents($file));
-        $ram = explode(',', $dump);
+    public function res($file) {
+        $dump = trim(fgc($file));
+        $ram = ex(',', $dump);
         foreach ($ram as &$r) {
             $r = (int)$r;
         }
         $this->ram = $ram;
     }
 
+    public function loc($modes, $param) {
+        if (l($modes) > $param - 1 && s($modes, -1 * $param, 1) == '1') {
+            $loc = $this->ip + $param;
+        } elseif (l($modes) > $param - 1 && s($modes, -1 * $param, 1) == '2') {
+            $loc = $this->rel + $this->ram[$this->ip + $param];
+        } else {
+            $loc = $this->ram[$this->ip + $param];
+        }
+        if (!isset($this->ram[$loc])) {
+            $this->ram[$loc] = 0;
+        }
+        return $loc;
+    }
+
     public function run($inputs = []) {
         $this->inputs = $inputs;
         $inputCount = 0;
-        $ip = $this->ip;
-        $ram = $this->ram;
-        $fop = $ram[$ip];
+        $fop = $this->ram[$this->ip];
         while ($fop != self::STP) {
             $digits = (string)$fop;
-            if (strlen($digits) < 3) {
+            if (l($digits) < 3) {
                 $op = (int)$fop;
                 $modes = '';
             } else {
-                $op = (int)substr($digits, -2);
-                $modes = substr($digits, 0, strlen($digits) - 2);
+                $op = (int)s($digits, -2);
+                $modes = s($digits, 0, l($digits) - 2);
             }
             $newPos = -1;
             $jump = self::SIZES[$op];
+
             if ($jump > 1) {
-                $val1 = (strlen($modes) > 0 && substr($modes, -1, 1) == '1') ? $ram[$ip + 1] : $ram[$ram[$ip + 1]];
+                $loc1 = $this->loc($modes, 1);
+                $val1 = $this->ram[$loc1];
             }
             if ($jump > 2) {
-                $val2 = (strlen($modes) > 1 && substr($modes, -2, 1) == '1') ? $ram[$ip + 2] : $ram[$ram[$ip + 2]];
+                $loc2 = $this->loc($modes, 2);
+                $val2 = $this->ram[$loc2];
             }
-            
+            if ($jump > 3) {
+                $loc3 = $this->loc($modes, 3);
+            }
+
             switch ($op) {
                 case self::ADD:
-                    $o1l = $ram[$ip + 3];
-                    $ram[$o1l] = $val1 + $val2;
+                    $this->ram[$loc3] = $val1 + $val2;
                     break;
                 case self::MUL:
-                    $o1l = $ram[$ip + 3];
-                    $ram[$o1l] = $val1 * $val2;
+                    $this->ram[$loc3] = $val1 * $val2;
                     break;
                 case self::STO:
-                    $o1l = $ram[$ip +1];
-                    if (count($inputs) > $inputCount) {
-                        $ram[$o1l] = $inputs[$inputCount];
+                    if (c($inputs) > $inputCount) {
+                        $this->ram[$loc1] = $inputs[$inputCount];
                     } else {
-                        $this->ram = $ram;
-                        return self::STO;  
+                        return self::STO;
                     }
                     $inputCount++;
                     break;
                 case self::OUT:
-                    echo "OUT: $val1\n";
+                    echo "$val1\n";
                     $this->outputs[] = $val1;
-                    $out = $val1;
                     break;
                 case self::JIT:
                     $newPos = ($val1 != 0 ? $val2 : $newPos);
@@ -95,29 +113,26 @@ class Computer {
                     $newPos = ($val1 == 0 ? $val2 : $newPos);
                     break;
                 case self::LT:
-                    $o1l = $ram[$ip + 3];
-                    $ram[$o1l] = ($val1 < $val2 ? 1 : 0);
+                    $this->ram[$loc3] = ($val1 < $val2 ? 1 : 0);
                     break;
                 case self::GT:
-                    $o1l = $ram[$ip + 3];
-                    $ram[$o1l] = ($val1 > $val2 ? 1 : 0);
+                    $this->ram[$loc3] = ($val1 > $val2 ? 1 : 0);
                     break;
                 case self::EQ:
-                    $o1l = $ram[$ip + 3];
-                    $ram[$o1l] = ($val1 == $val2 ? 1 : 0);
+                    $this->ram[$loc3] = ($val1 == $val2 ? 1 : 0);
                     break;
                 case self::NEQ:
-                    $o1l = $ram[$ip + 3];
-                    $ram[$o1l] = ($val1 != $val2 ? 1 : 0);
+                    $this->ram[$loc3] = ($val1 != $val2 ? 1 : 0);
+                    break;
+                case self::REL:
+                    $this->rel += $val1;
                     break;
                 default:
-                    throw new Exception("Error encountered.");
+                    throw new Exception("Error encountered. Code: $op Jump: $jump Fop: $fop IP: {$this->ip} Rel: {$this->rel}");
             }
-            $ip = ($newPos > -1) ? $newPos : $ip + $jump;
-            $this->ip = $ip;
-            $fop = $ram[$ip];
+            $this->ip = ($newPos > -1) ? $newPos : $this->ip + $jump;
+            $fop = $this->ram[$this->ip];
         }
-        $this->ram = $ram;
         return self::STP;
     }
 }
