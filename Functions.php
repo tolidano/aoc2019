@@ -44,7 +44,11 @@ function ch($str, $size) {
 }
 
 function li($f, $del = "\n") {
-    return ex($del, fgc($f));
+    $data = ex($del, fgc($f));
+    if (!trim(end($data))) {
+        unset($data[c($data) - 1]);
+    }
+    return $data;
 }
 
 function pr($str) {
@@ -89,7 +93,7 @@ function lp($wire) {
                     $list["RC|{$row}|{$col}"] = $steps;
                 }
                 break;
-        } 
+        }
     }
     return $list;
 }
@@ -185,7 +189,7 @@ function displayPathToRoot($node, $check = '') {
             }
             $length--;
             echo "Common parent to you: $you\n";
-            echo "Common parent to Santa: $length\n"; 
+            echo "Common parent to Santa: $length\n";
             $sum = $length + $you;
             echo "$sum\n";
             return $path;
