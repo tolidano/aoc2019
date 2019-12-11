@@ -28,17 +28,40 @@ foreach ($li as $line) {
     $row++;
 }
 
+printAsteroids($asteroids);
+
 $maxVisible = 0;
+$maxVR = 0;
+$maxVC = 0;
 foreach ($asteroids as $r => $row) {
     foreach ($row as $c => $col) {
         $visible = calcVisible($r, $c, $asteroids, $lineLength);
-        if ($visible > $maxVisible) {
-            $maxVisible = $visible;
+        if (c($visible) > $maxVisible) {
+            $maxVisible = c($visible);
+            $maxVR = $r;
+            $maxVC = $c;
         }
     }
 }
 
-echo $maxVisible . "\n";
+echo "Max Visible: $maxVisible at Row: $maxVR and Col: $maxVC\n";
+
+echo find200thAsteroid($asteroids, $maxVR, $maxVC);
+
+function find200thAsteroid($asteroids, $maxVR, $maxVC) {
+    // points up, rotates clockwise, switch # to ., keep count
+    $vaporized = 0;
+    while ($vaporized != 1) {
+        $visible = calcVisible($maxVR, $maxVC, $asteroids, c($asteroids[0]));
+        foreach ($visible as $arr) {
+            $asteroids[$arr['row']][$arr['col']] = '.'; //vaporize
+            $vaporized++;
+            if ($vaporized >= 199 && $vaporized <= 201) {
+                echo "JUST VAPORIZED $vaporized ASTEROIDS {$arr['row']} {$arr['col']}\n";
+            }
+        }
+    }
+}
 
 function printAsteroids($asteroids, $lineLength = null) {
     if (!$lineLength) {
@@ -52,17 +75,15 @@ function printAsteroids($asteroids, $lineLength = null) {
     }
 }
 
-printAsteroids($asteroids);
-
 function calcVisible($row, $col, $asteroids, $lineLength) {
     $visible = [];
     $numAsteroids = 0;
     $debug = false;
-    if ($col == 5 && $row == 8) {
+    if ($col == -5 && $row == 8) {
         $debug = true;
     }
     if ($asteroids[$row][$col] != '#') {
-        return 0;
+        return [];
     }
     for ($r = 0; $r < c($asteroids); $r++) {
         for ($c = 0; $c < $lineLength; $c++) {
@@ -101,11 +122,12 @@ function calcVisible($row, $col, $asteroids, $lineLength) {
                 if ($debug) {
                     echo "$bit FOR ($col, $row) and ($c, $r) calc (total: $cur) slope of $slope ($diffR) / ($diffC)\n";
                 }
-                $visible[$slope] = 1;
+                $dist = sqrt(($diffC * $diffC) + ($diffR * $diffR));
+                if (!isset($visible[$slope]) || $visible[$slope]['dist'] > $dist) {
+                    $visible[$slope] = ['col' => $c, 'row' => $r, 'dist' => $dist];
+                }
             }
         }
     }
-    $vis = c($visible);
-    echo "At col $col, row $row, I can see $vis asteroids (Saw $numAsteroids)\n";
-    return $vis;
+    return $visible;
 }
