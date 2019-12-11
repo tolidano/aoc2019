@@ -18,11 +18,13 @@ include_once('Tree.php');
 $c = new Computer();
 $c->res('11.input.txt');
 
-$panels = [];
 $painted = 0;
 $done = false;
 $x = 0;
 $y = 0;
+$xc = "C$x";
+$yc = "C$y";
+$panels[$xc][$yc] = 1;
 $faces = ['U', 'L', 'D', 'R'];
 $face = 0;
 while (!$done) {
@@ -69,3 +71,14 @@ while (!$done) {
     }
 }
 echo "PAINTED: $painted\n";
+var_dump($panels);
+foreach ($panels as $row) {
+    for ($i = 0; $i < 6; $i++) {
+        $out = '.';
+        if (isset($row["C$i"]) && $row["C$i"] == 1) {
+            $out = '#';
+        }
+        echo $out;
+    }
+    echo "\n";
+}
