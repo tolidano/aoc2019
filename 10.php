@@ -38,9 +38,12 @@ foreach ($asteroids as $r => $row) {
     }
 }
 
-echo $maxVisible;
+echo $maxVisible . "\n";
 
-function printAsteroids($asteroids, $lineLength) {
+function printAsteroids($asteroids, $lineLength = null) {
+    if (!$lineLength) {
+        $lineLength = c($asteroids[0]);
+    }
     for ($r = 0; $r < c($asteroids); $r++) {
         for ($c = 0; $c < $lineLength; $c++) {
             echo $asteroids[$r][$c];
@@ -49,12 +52,21 @@ function printAsteroids($asteroids, $lineLength) {
     }
 }
 
+printAsteroids($asteroids);
+
 function calcVisible($row, $col, $asteroids, $lineLength) {
     $visible = [];
     $numAsteroids = 0;
+    $debug = false;
+    if ($col == 5 && $row == 8) {
+        $debug = true;
+    }
+    if ($asteroids[$row][$col] != '#') {
+        return 0;
+    }
     for ($r = 0; $r < c($asteroids); $r++) {
         for ($c = 0; $c < $lineLength; $c++) {
-            if (($r != $row || $c != $col) && $asteroids[$r][$c] == "#") {
+            if ($asteroids[$r][$c] == '#' && ($r != $row || $c != $col)) {
                 $numAsteroids++;
                 $diffR = $row - $r;
                 $diffC = $col - $c;
@@ -86,7 +98,9 @@ function calcVisible($row, $col, $asteroids, $lineLength) {
                     $bit = "SEEN";
                 }
                 $cur = c($visible);
-                echo "$bit FOR ($col, $row) and ($c, $r) calc (total: $cur) slope of $slope ($diffR) / ($diffC)\n";
+                if ($debug) {
+                    echo "$bit FOR ($col, $row) and ($c, $r) calc (total: $cur) slope of $slope ($diffR) / ($diffC)\n";
+                }
                 $visible[$slope] = 1;
             }
         }
