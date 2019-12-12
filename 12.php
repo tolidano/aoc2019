@@ -1,4 +1,6 @@
 <?php
+ini_set('memory_limit','6G');
+
 include_once('Computer.php');
 include_once('Functions.php');
 include_once('Node.php');
@@ -88,4 +90,14 @@ while (!$done) {
         echo "TOTAL KINETIC: $total\n";
     }
     */
+    $str = '';
+    for ($i = 0; $i < c($m); $i++) {
+        foreach ($coord as $co) {
+            $str .= $m[$i][$co] . '-' . $m[$i]["{$co}v"] . '-';
+        }
+    }
+    if (isset($history[$str])) {
+        echo "TIME: $t\n";
+    }
+    $history[$str] = 1;
 }
